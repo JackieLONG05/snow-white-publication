@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snow White: The Dwarfs' Care</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <button id="music-toggle" type="button" class="muted" aria-label="Toggle background music" title="Background music (click to play/pause)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+    </svg>
+  </button>
+  <audio id="bgm" loop preload="auto">
+    <source src="./assets/bgm.mp3" type="audio/mpeg">
+    <source src="./assets/bgm.ogg" type="audio/ogg">
+  </audio>
+  <main id="app" role="main">
+    <!-- Landing: Snow White in crystal coffin + background story -->
+    <section id="landing" class="screen active" aria-labelledby="landing-title">
+      <div class="landing-hero">
+        <img src="./assets/coffin.png" alt="Snow White lies peacefully in a crystal coffin, surrounded by candles and flowers in a stone chamber" class="landing-img">
+        <div class="landing-overlay"></div>
+      </div>
+      <div class="landing-content">
+        <h1 id="landing-title">Snow White</h1>
+        <p class="landing-story">
+          The Queen, jealous of Snow White's beauty, gave her a poisoned apple. She bit it and fell into a deathlike sleep. The seven dwarfs, returning from the mine, found her so. Unable to bear the thought of burying her in the dark earth, they laid her in a crystal coffin and set it in the stone chamber, with candles and flowers around her.
+        </p>
+        <p class="landing-story">
+          Night after night they kept vigil. They were anxious, helpless — yet they would not leave her. She had come to their home; she had cared for them. Now they would care for her.
+        </p>
+        <p class="landing-cta">What did each of them do? Tap below to hear their stories.</p>
+        <button id="btn-start" type="button" class="btn btn-primary">Enter the Cottage</button>
+      </div>
+    </section>
+
+    <!-- Hub: Seven dwarfs image with clickable areas -->
+    <section id="hub" class="screen" aria-labelledby="hub-title" aria-hidden="true">
+      <h2 id="hub-title">At the Hearth</h2>
+      <p class="hub-hint">Click on each dwarf to read his story</p>
+      <div class="hub-scene-wrap">
+        <div class="scene-stage">
+          <img src="./assets/dwarfs.png" alt="The seven dwarfs gathered around the fireplace in their cottage" class="scene-img">
+          <!-- Clickable overlay buttons for each dwarf -->
+          <div id="dwarf-list" class="dwarf-hotspots" role="list"></div>
+        </div>
+        <div class="hub-footer">
+          <div class="progress-row" aria-live="polite">
+            <span id="progress-text">0/7</span>
+            <span id="progress-label"> stories read</span>
+          </div>
+          <div class="hub-actions">
+            <button id="btn-ending" type="button" class="btn btn-secondary" disabled>Ending (7/7 required)</button>
+            <button id="btn-reset" type="button" class="btn btn-text">Reset</button>
+            <button id="btn-credits" type="button" class="btn btn-text">Credits / Notes</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vignette Modal -->
+    <div id="vignette-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="vignette-title" aria-hidden="true">
+      <div class="modal-backdrop" data-close="true" tabindex="-1" aria-hidden="true"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="vignette-title"></h3>
+          <button id="btn-modal-close" type="button" class="btn-close" aria-label="Close">×</button>
+        </div>
+        <div class="modal-body">
+          <div id="vignette-text" class="vignette-text"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-mark-read" type="button" class="btn btn-primary">Mark as read & return</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Credits Panel -->
+    <div id="credits-panel" class="panel-overlay" aria-hidden="true">
+      <div class="panel-content">
+        <h3>Production Team</h3>
+        <p><strong>Catherine</strong> (Content / Planning) — Story, character text, narrative structure and rhythm</p>
+        <p><strong>Yaojie Long</strong> (Tech + Visual UX) — Web implementation, UI/interaction, asset integration and optimization</p>
+        <p><strong>Jing Cui</strong> (Coordination + Research Documentation) — Progress and delivery management, case/audience/risk analysis, testing and reflection</p>
+        <p class="credits-note">Even though the production team is working hard to make this website, we all hope Snow White can wake up.</p>
+        <button id="btn-credits-close" type="button" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
+
+    <!-- Ending -->
+    <section id="ending" class="screen" aria-labelledby="ending-title" aria-hidden="true">
+      <h2 id="ending-title">The Ending</h2>
+      <div class="ending-content">
+        <div id="ending-text"></div>
+        <div class="ending-actions">
+          <button id="btn-back-hub" type="button" class="btn btn-primary">Back to the Cottage</button>
+          <button id="btn-replay" type="button" class="btn btn-secondary">Replay (reset)</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

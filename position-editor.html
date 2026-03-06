@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dwarf Position Editor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1rem; background: #1a1a1a; color: #eee; }
+    h1 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    p { font-size: 0.9rem; color: #999; margin-bottom: 1rem; }
+    .editor-wrap { position: relative; display: inline-block; max-width: 100%; }
+    .editor-wrap img { display: block; width: 100%; max-width: 600px; }
+    .hotspot { position: absolute; width: 48px; height: 48px; margin-left: -24px; margin-top: -24px;
+      border-radius: 50%; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.5);
+      color: #fff; font-size: 0.65rem; font-weight: bold; cursor: grab; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 2px; line-height: 1.1; user-select: none; }
+    .hotspot:active { cursor: grabbing; }
+    .hotspot.dragging { opacity: 0.9; border-color: #c9a227; }
+    .actions { margin-top: 1rem; }
+    button { padding: 0.5rem 1rem; margin-right: 0.5rem; cursor: pointer; background: #333; color: #fff; border: 1px solid #555; border-radius: 6px; }
+    button:hover { background: #444; }
+    button.primary { background: #c9a227; color: #1a150c; border-color: #c9a227; }
+    textarea { width: 100%; max-width: 600px; height: 120px; margin-top: 0.5rem; padding: 0.75rem; font-family: monospace; font-size: 0.8rem; background: #222; color: #0f0; border: 1px solid #444; border-radius: 6px; resize: vertical; }
+    .hint { font-size: 0.85rem; color: #888; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <h1>Dwarf Position Editor</h1>
+  <p>Drag each button onto the dwarf's head. When done, click "Export positions" and paste the output to update app.js.</p>
+
+  <div class="editor-wrap" id="stage">
+    <img src="./assets/dwarfs.png" alt="Seven dwarfs" id="dwarfs-img">
+    <div id="hotspots"></div>
+  </div>
+
+  <div class="actions">
+    <button type="button" id="btn-export" class="primary">Export positions</button>
+    <button type="button" id="btn-copy">Copy to clipboard</button>
+  </div>
+  <textarea id="output" placeholder="Click Export to generate DWARF_POSITIONS…" readonly></textarea>
+  <p class="hint">Paste the exported JSON here and share with the developer, or use Copy to clipboard.</p>
+
+  <script>
+    (function () {
+      const DWARFS = ["doc", "grumpy", "happy", "sleepy", "bashful", "sneezy", "dopey"];
+      const NAMES = { doc: "Doc", grumpy: "Grumpy", happy: "Happy", sleepy: "Sleepy", bashful: "Bashful", sneezy: "Sneezy", dopey: "Dopey" };
+      const DEFAULT = { doc: { left: 50, top: 48 }, grumpy: { left: 12, top: 42 }, happy: { left: 25, top: 62 }, sleepy: { left: 20, top: 25 }, bashful: { left: 84, top: 48 }, sneezy: { left: 80, top: 25 }, dopey: { left: 90, top: 42 } };
+
+      let positions = JSON.parse(localStorage.getItem("dwarf-positions") || "null") || { ...Object.fromEntries(DWARFS.map(id => [id, DEFAULT[id] || { left: 50, top: 50 }])) };
+      const stage = document.getElementById("stage");
+      const hotspotsEl = document.getElementById("hotspots");
+      const output = document.getElementById("output");
+
+      function save() {
+        localStorage.setItem("dwarf-positions", JSON.stringify(positions));
+      }
+
+      function render() {
+        hotspotsEl.innerHTML = "";
+        DWARFS.forEach(id => {
+          const p = positions[id] || { left: 50, top: 50 };
+          const el = document.createElement("div");
+          el.className = "hotspot";
+          el.textContent = NAMES[id];
+          el.dataset.id = id;
+          el.style.left = p.left + "%";
+          el.style.top = p.top + "%";
+
+          let startX, startY, startL, startT;
+          function startDrag(clientX, clientY) {
+            el.classList.add("dragging");
+            startX = clientX;
+            startY = clientY;
+            startL = parseFloat(el.style.left);
+            startT = parseFloat(el.style.top);
+            const rect = stage.getBoundingClientRect();
+            const stageW = rect.width;
+            const stageH = rect.height;
+
+            function move(cx, cy) {
+              const dx = ((cx - startX) / stageW) * 100;
+              const dy = ((cy - startY) / stageH) * 100;
+              const L = Math.max(0, Math.min(100, startL + dx));
+              const T = Math.max(0, Math.min(100, startT + dy));
+              el.style.left = L + "%";
+              el.style.top = T + "%";
+              positions[id] = { left: Math.round(L * 10) / 10, top: Math.round(T * 10) / 10 };
+              startX = cx;
+              startY = cy;
+              startL = L;
+              startT = T;
+              save();
+            }
+            function endDrag() {
+              el.classList.remove("dragging");
+              document.removeEventListener("mousemove", onMove);
+              document.removeEventListener("mouseup", endDrag);
+              document.removeEventListener("touchmove", onTouch);
+              document.removeEventListener("touchend", endDrag);
+            }
+            function onMove(e) { move(e.clientX, e.clientY); }
+            function onTouch(e) { if (e.touches.length) move(e.touches[0].clientX, e.touches[0].clientY); }
+            document.addEventListener("mousemove", onMove);
+            document.addEventListener("mouseup", endDrag);
+            document.addEventListener("touchmove", onTouch, { passive: false });
+            document.addEventListener("touchend", endDrag);
+          }
+          el.addEventListener("mousedown", (e) => { e.preventDefault(); startDrag(e.clientX, e.clientY); });
+          el.addEventListener("touchstart", (e) => { e.preventDefault(); if (e.touches.length) startDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+
+          hotspotsEl.appendChild(el);
+        });
+      }
+
+      function exportPositions() {
+        const entries = Object.entries(positions);
+        const lines = entries.map(([id, p], i) => `    ${id}: { left: ${p.left}, top: ${p.top} }${i < entries.length - 1 ? "," : ""}`);
+        const str = "  const DWARF_POSITIONS = {\n" + lines.join("\n") + "\n  };";
+        output.value = str + "\n\n(Paste the above block into app.js to replace DWARF_POSITIONS.)";
+        return str;
+      }
+
+      document.getElementById("btn-export").addEventListener("click", () => exportPositions());
+      document.getElementById("btn-copy").addEventListener("click", () => {
+        const text = output.value || exportPositions();
+        navigator.clipboard.writeText(text).then(() => alert("Copied! Paste this to the developer or into app.js.")).catch(() => alert("Could not copy. Please select and copy manually."));
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
