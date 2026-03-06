@@ -7,11 +7,14 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <button id="music-toggle" type="button" class="muted" aria-label="Toggle background music" title="Background music (click to play/pause)">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-    </svg>
-  </button>
+  <div id="music-control" class="music-control">
+    <span id="music-hint" class="music-hint" aria-hidden="true">Click to play music</span>
+    <button id="music-toggle" type="button" class="muted" aria-label="Toggle background music" title="Background music (click to play/pause)">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+      </svg>
+    </button>
+  </div>
   <audio id="bgm" loop preload="auto">
     <source src="./assets/bgm.mp3" type="audio/mpeg">
     <source src="./assets/bgm.ogg" type="audio/ogg">

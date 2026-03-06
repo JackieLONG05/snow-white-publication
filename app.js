@@ -413,7 +413,9 @@ Snow White and the prince ruled their kingdom in peace. The seven dwarfs were ho
     audio.volume = 0.35;
     /* No autoplay: browsers block it without user gesture. Click-to-play only. */
 
+    const hint = document.getElementById("music-hint");
     toggle.addEventListener("click", () => {
+      if (hint) hint.classList.add("music-hint-hidden");
       if (audio.paused) {
         audio.volume = 0.35;
         audio.play().catch(() => {});
